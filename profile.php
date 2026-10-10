@@ -1,0 +1,7 @@
+<?php
+require_once 'config/database.php';require_once 'includes/functions.php';$id=(int)($_GET['id']??0);
+$st=$pdo->prepare("SELECT * FROM profiles WHERE user_id=?");$st->execute([$id]);$p=$st->fetch();if(!$p){http_response_code(404);exit('Profile not found.');}
+$ss=$pdo->prepare("SELECT s.name FROM skills s JOIN user_skills us ON us.skill_id=s.id WHERE us.user_id=? ORDER BY s.name");$ss->execute([$id]);$skills=$ss->fetchAll();
+$pageTitle=$p['full_name'];include 'includes/header.php';?>
+<section class="profile-hero"><div class="container profile-layout"><?php if($p['photo']):?><img class="profile-photo" src="<?=e($p['photo'])?>" alt="<?=e($p['full_name'])?>"><?php else:?><div class="profile-photo avatar big"><?=e(strtoupper(substr($p['full_name'],0,1)))?></div><?php endif;?><div><span class="eyebrow"><?=e($p['country'])?> · <?=e($p['city'])?></span><h1><?=e($p['full_name'])?></h1><h3><?=e($p['headline']?:'Skilled professional')?></h3><p><?=nl2br(e($p['bio']))?></p><?php if($p['phone']):?><a class="btn" href="https://wa.me/<?=preg_replace('/\D/','',$p['phone'])?>" target="_blank">Contact on WhatsApp</a><?php endif;?></div></div></section>
+<section class="section"><div class="container narrow"><h2>Skills</h2><div class="pills"><?php foreach($skills as $s):?><span><?=$s['name']?></span><?php endforeach;?></div><?php if($p['hourly_rate']):?><h2>Rate</h2><p>From UGX <?=number_format((float)$p['hourly_rate'])?> / hour</p><?php endif;?></div></section><?php include 'includes/footer.php';?>

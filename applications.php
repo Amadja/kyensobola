@@ -1,0 +1,4 @@
+<?php
+require_once 'config/database.php';require_once 'includes/auth.php';
+$jobId=(int)($_GET['job_id']??0);$s=$pdo->prepare("SELECT a.*,p.full_name,p.phone,p.city,j.title FROM applications a JOIN profiles p ON p.user_id=a.user_id JOIN jobs j ON j.id=a.job_id WHERE j.user_id=? AND a.job_id=? ORDER BY a.created_at DESC");$s->execute([current_user_id(),$jobId]);$apps=$s->fetchAll();
+$pageTitle='Applications';include 'includes/header.php';?><section class="section"><div class="container narrow"><h1>Applications</h1><?php foreach($apps as $a):?><div class="application"><h3><?=e($a['full_name'])?></h3><small><?=e($a['city'])?> · <?=e($a['phone'])?></small><p><?=nl2br(e($a['cover_letter']))?></p><span class="tag"><?=e($a['status'])?></span></div><?php endforeach;if(!$apps):?><div class="empty">No applications yet.</div><?php endif;?></div></section><?php include 'includes/footer.php';?>
